@@ -1,0 +1,91 @@
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  margin-bottom: var(--space-2);
+  text-align: left;
+}
+
+.form-field__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-text);
+}
+
+.form-field__required {
+  color: var(--color-error-700);
+}
+
+.form-field__input {
+  width: 100%;
+  padding: 0.75rem var(--space-2);
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast);
+}
+
+/* :where() deja la especificidad del hover en 0,1,0. Sin eso,
+   `:hover:not(:disabled)` (0,3,0) le gana al borde de foco (0,2,0) y al de
+   error mientras el mouse sigue encima del input -- el caso normal de
+   "click en el campo". Ahora decide el orden de las reglas de abajo. */
+.form-field__input:where(:hover:not(:disabled)) {
+  border-color: var(--color-border-strong);
+}
+
+.form-field__input:disabled {
+  background: var(--color-bg-sunken);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Foco propio de los campos de texto: el borde de marca en vez del
+   anillo global (que dibujaba un cuadrado alrededor). Ver styles/global.css. */
+.form-field__input:focus,
+.form-field__input:focus-visible {
+  outline: none;
+  border-color: var(--color-primary-700);
+  box-shadow: 0 0 0 3px var(--color-focus-glow);
+}
+
+/* Declarado después del foco, con especificidad igual o mayor: un campo
+   con error tiene que seguir viéndose en error aunque esté enfocado. */
+.form-field__input--error,
+.form-field__input--error:focus,
+.form-field__input--error:focus-visible {
+  border-color: var(--color-error-700);
+}
+
+.form-field__hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.form-field__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-error-700);
+}
+
+.form-field__error::before {
+  content: "!";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-0);
+  background: var(--color-error-700);
+  border-radius: var(--radius-full);
+}

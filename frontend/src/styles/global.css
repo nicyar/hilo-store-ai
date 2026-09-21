@@ -1,0 +1,80 @@
+/*
+  GLOBAL — HILO Store (frontend React, etapa autenticación)
+  ---------------------------------------------------------
+  Reset + utilidades mínimas, adaptadas de ../../../css/styles.css
+  del sitio vanilla para que esta etapa no se vea "desconectada"
+  del resto de la marca. Solo se porta lo que la pantalla de auth
+  necesita (no todo el styles.css: eso corresponde a la migración
+  completa, todavía no arrancada).
+*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-text);
+  background: var(--color-bg-subtle);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+}
+
+/* ============ FOCO VISIBLE ============
+   Mismo anillo fino que el sitio vanilla (ver css/styles.css, sección
+   FOCO VISIBLE, para el porqué de no forzar `border-radius` ni glow):
+   nunca se quita el foco, solo se reemplaza el estilo por defecto. */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Para elementos que se enfocan por código (gestión de foco al
+   mostrar un error, al cambiar de pestaña) en vez de por teclado:
+   el heurístico de :focus-visible normalmente NO muestra anillo en
+   foco programático, así que estos fuerzan el mismo anillo con
+   :focus para que el foco gestionado siempre se vea. */
+.focus-ring-always:focus {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

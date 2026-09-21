@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HILO Store — Revisión de comprobantes</title>
+<!--
+  Pantalla mínima de revisión manual de comprobantes de transferencia (ver
+  CLAUDE.md, "Checkout: confirmación de transferencias por comprobante" y
+  server/src/routes/adminOrders.js). NO forma parte del sistema de diseño
+  del sitio público (no comparte css/tokens.css/styles.css a propósito --
+  esto es una herramienta interna, no una pantalla de cliente) y NO tiene
+  ningún link hacia acá desde index.html/checkout.html -- se llega
+  escribiendo /admin/comprobantes.html directamente.
+
+  La API key se guarda SOLO en una variable de JS en memoria (adminApiKey
+  más abajo), nunca en localStorage/sessionStorage -- es una credencial, y
+  el proyecto tiene como criterio no negociable no persistir credenciales
+  en el navegador (mismo espíritu que la cookie de sesión HttpOnly, ver
+  CLAUDE.md). Se pierde al recargar la página a propósito.
+-->
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f4f4f2;
+    --panel: #ffffff;
+    --border: #d8d5cf;
+    --text: #1c1c1a;
+    --muted: #6b6862;
+    --accent: #1c1c1a;
+    --danger: #a3342a;
+    --danger-bg: #f6e6e4;
+    --ok: #2f6b3a;
+    --ok-bg: #e7f0e5;
+    --warn-bg: #fff6e0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.subtitle { color: var(--muted); margin: 0 0 20px; }
+  .key-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 20px;
+  }
+  .key-bar input[type="password"], .key-bar input[type="text"] {
+    flex: 1 1 240px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: monospace;
+  }
+  button {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  button.secondary {
+    background: #fff;
+    color: var(--text);
+    border-color: var(--border);
+  }
+  button.danger {
+    background: var(--danger);
+    border-color: var(--danger);
+  }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  #status-msg {
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    display: none;
+  }
+  #status-msg.show { display: block; }
+  #status-msg.error { background: var(--danger-bg); color: var(--danger); }
+  #status-msg.ok { background: var(--ok-bg); color: var(--ok); }
+  .order-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .order-card h2 {
+    font-size: 15px;
+    margin: 0 0 6px;
+    font-family: monospace;
+  }
+  .order-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 6px 16px;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+  .order-meta div span.label { color: var(--muted); display: block; font-size: 11px; text-transform: uppercase; }
+  ul.items { margin: 0 0 10px; padding-left: 18px; font-size: 13px; color: var(--muted); }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  #empty-msg { color: var(--muted); padding: 20px 0; }
+</style>
+</head>
+<body>
+  <h1>Revisión de comprobantes de transferencia</h1>
+  <p class="subtitle">Herramienta interna, no forma parte del sitio público. Requiere la API key de administración.</p>
+
+  <div class="key-bar">
+    <input id="admin-key-input" type="password" placeholder="x-admin-key" autocomplete="off" />
+    <button id="load-btn" type="button">Cargar pendientes</button>
+    <button id="refresh-btn" type="button" class="secondary" disabled>Actualizar</button>
+  </div>
+
+  <div id="status-msg"></div>
+  <div id="empty-msg" style="display:none;">No hay comprobantes pendientes de revisión.</div>
+  <div id="orders-list"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Vive SOLO en memoria de esta página -- ver comentario del <head>.
+  var adminApiKey = "";
+
+  var keyInput = document.getElementById("admin-key-input");
+  var loadBtn = document.getElementById("load-btn");
+  var refreshBtn = document.getElementById("refresh-btn");
+  var statusMsg = document.getElementById("status-msg");
+  var emptyMsg = document.getElementById("empty-msg");
+  var ordersList = document.getElementById("orders-list");
+
+  function showStatus(text, kind) {
+    statusMsg.textContent = text;
+    statusMsg.className = "show " + (kind || "");
+  }
+
+  function clearStatus() {
+    statusMsg.className = "";
+    statusMsg.textContent = "";
+  }
+
+  function centsToArs(cents) {
+    return "$" + (cents / 100).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function adminFetch(path, options) {
+    options = options || {};
+    options.headers = Object.assign({}, options.headers, { "x-admin-key": adminApiKey });
+    return fetch(path, options);
+  }
+
+  async function handleApiError(res, fallbackMsg) {
+    if (res.status === 401) {
+      showStatus("API key incorrecta.", "error");
+      return true;
+    }
+    if (res.status === 501) {
+      showStatus("El server no tiene ADMIN_API_KEY configurada.", "error");
+      return true;
+    }
+    if (res.status === 429) {
+      showStatus("Demasiados intentos, esperá unos minutos.", "error");
+      return true;
+    }
+    if (!res.ok) {
+      var body = null;
+      try { body = await res.json(); } catch (e) { /* respuesta sin JSON */ }
+      showStatus((body && body.error) || fallbackMsg, "error");
+      return true;
+    }
+    return false;
+  }
+
+  function renderOrders(orders) {
+    ordersList.innerHTML = "";
+    if (!orders.length) {
+      emptyMsg.style.display = "block";
+      return;
+    }
+    emptyMsg.style.display = "none";
+
+    orders.forEach(function (order) {
+      var card = document.createElement("div");
+      card.className = "order-card";
+
+      var itemsHtml = order.items.map(function (it) {
+        return "<li>" + it.quantity + "x " + escapeHtml(it.name) + " — " + centsToArs(it.line_total_cents) + "</li>";
+      }).join("");
+
+      card.innerHTML =
+        "<h2>" + escapeHtml(order.public_code) + "</h2>" +
+        "<div class=\"order-meta\">" +
+          "<div><span class=\"label\">Contacto</span>" + escapeHtml(order.contact.name) + "</div>" +
+          "<div><span class=\"label\">Email</span>" + escapeHtml(order.contact.email) + "</div>" +
+          "<div><span class=\"label\">Teléfono</span>" + escapeHtml(order.contact.phone) + "</div>" +
+          "<div><span class=\"label\">DNI</span>" + escapeHtml(order.contact.dni) + "</div>" +
+          "<div><span class=\"label\">Total</span>" + centsToArs(order.total_cents) + " " + escapeHtml(order.currency) + "</div>" +
+          "<div><span class=\"label\">Comprobante subido</span>" + escapeHtml(order.comprobante_uploaded_at || "-") + "</div>" +
+        "</div>" +
+        "<ul class=\"items\">" + itemsHtml + "</ul>" +
+        "<div class=\"actions\">" +
+          "<button type=\"button\" class=\"secondary\" data-action=\"view\">Ver comprobante</button>" +
+          "<button type=\"button\" data-action=\"confirm\">Confirmar pago</button>" +
+          "<button type=\"button\" class=\"danger\" data-action=\"reject\">Rechazar</button>" +
+        "</div>";
+
+      card.querySelector('[data-action="view"]').addEventListener("click", function () {
+        viewComprobante(order);
+      });
+      card.querySelector('[data-action="confirm"]').addEventListener("click", function () {
+        reviewOrder(order.public_code, "confirm");
+      });
+      card.querySelector('[data-action="reject"]').addEventListener("click", function () {
+        reviewOrder(order.public_code, "reject");
+      });
+
+      ordersList.appendChild(card);
+    });
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.textContent = str == null ? "" : String(str);
+    return div.innerHTML;
+  }
+
+  // El comprobante NUNCA es un link público -- se pide con fetch mandando
+  // el header x-admin-key, y se abre como blob URL en una pestaña nueva
+  // (nunca se pega la key en la URL, ni como query param ni en el href
+  // directo, para que no quede en el historial del navegador).
+  async function viewComprobante(order) {
+    clearStatus();
+    try {
+      var res = await adminFetch(order.comprobante_url);
+      if (await handleApiError(res, "No se pudo abrir el comprobante.")) return;
+      var blob = await res.blob();
+      var blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, "_blank");
+    } catch (err) {
+      showStatus("Error de red al pedir el comprobante.", "error");
+    }
+  }
+
+  async function reviewOrder(publicCode, action) {
+    clearStatus();
+    try {
+      var res = await adminFetch("/api/admin/orders/" + encodeURIComponent(publicCode) + "/" + action, {
+        method: "POST",
+      });
+      if (await handleApiError(res, "No se pudo actualizar el pedido.")) return;
+      showStatus(
+        "Pedido " + publicCode + " " + (action === "confirm" ? "confirmado" : "rechazado") + ".",
+        "ok"
+      );
+      loadPending();
+    } catch (err) {
+      showStatus("Error de red al actualizar el pedido.", "error");
+    }
+  }
+
+  async function loadPending() {
+    clearStatus();
+    if (!adminApiKey) {
+      showStatus("Ingresá la API key primero.", "error");
+      return;
+    }
+    loadBtn.disabled = true;
+    refreshBtn.disabled = true;
+    try {
+      var res = await adminFetch("/api/admin/orders/pending");
+      if (await handleApiError(res, "No se pudieron cargar los pedidos pendientes.")) return;
+      var data = await res.json();
+      renderOrders(data.orders || []);
+      refreshBtn.disabled = false;
+    } catch (err) {
+      showStatus("Error de red al cargar los pedidos.", "error");
+    } finally {
+      loadBtn.disabled = false;
+    }
+  }
+
+  loadBtn.addEventListener("click", function () {
+    adminApiKey = keyInput.value.trim();
+    loadPending();
+  });
+  refreshBtn.addEventListener("click", loadPending);
+  keyInput.addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") {
+      adminApiKey = keyInput.value.trim();
+      loadPending();
+    }
+  });
+})();
+</script>
+</body>
+</html>

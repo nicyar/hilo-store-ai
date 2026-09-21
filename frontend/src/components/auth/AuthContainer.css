@@ -1,0 +1,55 @@
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-4) var(--space-3);
+}
+
+@media (min-width: 480px) {
+  .auth-card {
+    padding: var(--space-5) var(--space-4);
+  }
+}
+
+.auth-card__brand {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-primary-700);
+  margin-bottom: var(--space-3);
+  text-align: center;
+}
+
+.auth-card__title {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+  margin-bottom: var(--space-1);
+}
+
+/* Ver .focus-ring-always en styles/global.css: este título se
+   enfoca por código al cambiar de pestaña, así que necesita el
+   mismo anillo forzado con :focus en vez de :focus-visible. */
+
+.auth-card__copy {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+
+.auth-card__loading,
+.auth-card__error {
+  text-align: center;
+  padding: var(--space-3) 0;
+}
+
+.auth-card__error {
+  color: var(--color-error-700);
+  font-weight: var(--weight-medium);
+  margin-bottom: var(--space-2);
+}

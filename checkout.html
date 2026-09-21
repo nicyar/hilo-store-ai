@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finalizar compra — HILO Store</title>
+  <meta name="description" content="Revisá tu pedido, completá tus datos de envío y confirmá tu compra en HILO Store." />
+  <meta name="theme-color" content="#C2410C" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/checkout.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+  <!-- Sprite de íconos reutilizables (mismo set que index.html; se duplica
+       acá porque el sitio no tiene build step / includes -- ver CLAUDE.md,
+       "Stack y estructura actual"). -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="icon-sock" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M36 4h20a6 6 0 0 1 6 6v39.5l13.6 7.8A23 23 0 0 1 87 77.5V82a6 6 0 0 1-6 6H30a6 6 0 0 1-6-6V10a6 6 0 0 1 6-6z"/>
+      <rect fill="currentColor" x="29" y="19" width="33" height="7" rx="2" opacity="0.35"/>
+    </symbol>
+    <symbol id="icon-check-circle" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/>
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m7.5 12.5 3 3 6-6.5"/>
+    </symbol>
+    <symbol id="icon-alert-triangle" viewBox="0 0 24 24">
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 9v4"/>
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01"/>
+      <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+    </symbol>
+  </svg>
+
+  <!-- Header simplificado a propósito: en el flujo de pago se saca la nav
+       principal, el buscador y los accesos a cuenta/carrito para no dar
+       salidas que distraigan de terminar la compra -- patrón estándar de
+       checkout. Solo queda la marca y una forma clara de volver atrás. -->
+  <header class="site-header">
+    <div class="container site-header__bar">
+      <a class="logo" href="index.html">
+        <svg class="logo__mark" viewBox="0 0 48 48" aria-hidden="true">
+          <circle cx="24" cy="24" r="9" fill="none" stroke="currentColor" stroke-width="4"/>
+          <path d="M6 24h9M33 24h9" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <span class="logo__text">HILO <span>Store</span></span>
+      </a>
+      <a class="checkout-back-link" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+        <span>Volver a la tienda</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Región viva para anunciar el resultado de la confirmación a lectores
+       de pantalla (mismo patrón que data-cart-live en index.html). -->
+  <div class="sr-only" role="status" aria-live="polite" data-checkout-live></div>
+
+  <main id="main-content">
+    <div class="container checkout-page">
+      <div class="checkout-page__header">
+        <span class="section-heading__eyebrow">Paso final</span>
+        <h1>Finalizar compra</h1>
+        <p>Revisá tu pedido, completá tus datos y elegí cómo entregarlo y cómo pagarlo.</p>
+      </div>
+
+      <!-- ============ VISTA 1: FORMULARIO ============ -->
+      <div data-checkout-view="form">
+        <form class="checkout-layout" data-checkout-form novalidate>
+          <div class="checkout-main">
+            <div class="checkout-notice checkout-notice--warning" data-price-changed-notice hidden>
+              <svg aria-hidden="true"><use href="#icon-alert-triangle"/></svg>
+              <div>
+                <strong>Los precios cambiaron</strong>
+                <p>Actualizamos tu pedido con los precios actuales antes de confirmar. Revisá los totales de abajo antes de continuar.</p>
+              </div>
+            </div>
+
+            <!-- ---- Datos de contacto ---- -->
+            <section class="checkout-section" aria-labelledby="contact-heading">
+              <h2 class="checkout-section__heading" id="contact-heading">Datos de contacto</h2>
+              <div class="checkout-fields-grid">
+                <div class="form-field">
+                  <label class="form-field__label" for="contact-name">Nombre y apellido<span class="form-field__required" aria-hidden="true"> *</span></label>
+                  <!-- maxlength = MAX_LEN.name del server (checkoutValidate.js) -- defensa en
+                       profundidad, el server sigue siendo la fuente de verdad (ver CLAUDE.md,
+                       "Checkout: endurecimiento de la validación de POST /api/orders"). -->
+                  <input class="form-field__input" id="contact-name" name="contact-name" type="text" autocomplete="name" required maxlength="120" aria-describedby="contact-name-error" />
+                  <p class="form-field__error" id="contact-name-error" role="alert" hidden></p>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-field__label" for="contact-email">Email<span class="form-field__required" aria-hidden="true"> *</span></label>
+                  <!-- maxlength = MAX_LEN.email del server (254, RFC 5321). -->
+                  <input class="form-field__input" id="contact-email" name="contact-email" type="email" autocomplete="email" required maxlength="254" aria-describedby="contact-email-error" />
+                  <p class="form-field__error" id="contact-email-error" role="alert" hidden></p>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-field__label" for="contact-phone">Teléfono<span class="form-field__required" aria-hidden="true"> *</span></label>
+                  <!-- maxlength=16: no hay entrada propia en MAX_LEN del server (phone se
+                       valida contra PHONE_RE -- E.164, "+" + 8 a 15 dígitos -- en vez de una
+                       cota de longitud aparte, para no tener dos fuentes de verdad; 16 es el
+                       largo máximo que esa regex puede matchear). -->
+                  <input class="form-field__input" id="contact-phone" name="contact-phone" type="tel" autocomplete="tel" placeholder="11 5555 0123" required maxlength="16" aria-describedby="contact-phone-error" />
+                  <p class="form-field__error" id="contact-phone-error" role="alert" hidden></p>
+                </div>
+
+                <div class="form-field">
+                  <label class="form-field__label" for="contact-dni">DNI<span class="form-field__required" aria-hidden="true"> *</span></label>
+                  <!-- maxlength=8: mismo criterio que phone -- DNI_RE del server acepta 7 u 8
+                       dígitos, sin cota propia en MAX_LEN. -->
+                  <input class="form-field__input" id="contact-dni" name="contact-dni" type="text" inputmode="numeric" autocomplete="off" required maxlength="8" aria-describedby="contact-dni-hint contact-dni-error" />
+                  <p class="form-field__hint" id="contact-dni-hint">Sin puntos, 7 u 8 dígitos.</p>
+                  <p class="form-field__error" id="contact-dni-error" role="alert" hidden></p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ---- Método de entrega ---- -->
+            <section class="checkout-section">
+              <fieldset class="checkout-fieldset" data-delivery-fieldset>
+                <legend class="checkout-section__heading">Método de entrega</legend>
+
+                <div class="delivery-options">
+                  <label class="delivery-option">
+                    <input type="radio" name="delivery-method" value="retiro" checked data-delivery-radio />
+                    <span class="delivery-option__body">
+                      <span class="delivery-option__title">Retirar en el local</span>
+                      <span class="delivery-option__desc">Sin costo. Te avisamos por email cuándo está listo para retirar.</span>
+                    </span>
+                    <span class="delivery-option__price">Gratis</span>
+                  </label>
+
+                  <label class="delivery-option">
+                    <input type="radio" name="delivery-method" value="envio" data-delivery-radio />
+                    <span class="delivery-option__body">
+                      <span class="delivery-option__title">Envío a domicilio</span>
+                      <span class="delivery-option__desc">El costo depende de la provincia.</span>
+                    </span>
+                    <span class="delivery-option__price" data-shipping-example>$3.500</span>
+                  </label>
+                </div>
+
+                <div class="address-fields" data-address-fields hidden>
+                  <div class="checkout-fields-grid">
+                    <div class="form-field checkout-fields-grid__item--full">
+                      <label class="form-field__label" for="address-street">Calle<span class="form-field__required" aria-hidden="true"> *</span></label>
+                      <!-- maxlength = MAX_LEN del server (checkoutValidate.js). -->
+                      <input class="form-field__input" id="address-street" name="address-street" type="text" autocomplete="address-line1" maxlength="120" aria-describedby="address-street-error" />
+                      <p class="form-field__error" id="address-street-error" role="alert" hidden></p>
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-field__label" for="address-number">Número<span class="form-field__required" aria-hidden="true"> *</span></label>
+                      <input class="form-field__input" id="address-number" name="address-number" type="text" autocomplete="off" maxlength="20" aria-describedby="address-number-error" />
+                      <p class="form-field__error" id="address-number-error" role="alert" hidden></p>
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-field__label" for="address-floor">Piso / depto (opcional)</label>
+                      <input class="form-field__input" id="address-floor" name="address-floor" type="text" autocomplete="off" maxlength="40" />
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-field__label" for="address-city">Localidad<span class="form-field__required" aria-hidden="true"> *</span></label>
+                      <input class="form-field__input" id="address-city" name="address-city" type="text" autocomplete="address-level2" maxlength="80" aria-describedby="address-city-error" />
+                      <p class="form-field__error" id="address-city-error" role="alert" hidden></p>
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-field__label" for="address-province">Provincia<span class="form-field__required" aria-hidden="true"> *</span></label>
+                      <!--
+                        Opciones de ejemplo -- valentina las reemplaza en la
+                        Etapa 2 con el resultado real de
+                        GET /api/shipping/rates (ver el plan de checkout).
+                        No hardcodear esta lista más allá de la maqueta.
+                      -->
+                      <select class="form-field__input" id="address-province" name="address-province" autocomplete="address-level1" aria-describedby="address-province-error">
+                        <option value="" selected disabled>Seleccioná tu provincia</option>
+                        <option value="buenos-aires">Buenos Aires</option>
+                        <option value="caba">CABA</option>
+                        <option value="catamarca">Catamarca</option>
+                        <option value="chaco">Chaco</option>
+                        <option value="chubut">Chubut</option>
+                        <option value="cordoba">Córdoba</option>
+                        <option value="corrientes">Corrientes</option>
+                        <option value="entre-rios">Entre Ríos</option>
+                        <option value="formosa">Formosa</option>
+                        <option value="jujuy">Jujuy</option>
+                        <option value="la-pampa">La Pampa</option>
+                        <option value="la-rioja">La Rioja</option>
+                        <option value="mendoza">Mendoza</option>
+                        <option value="misiones">Misiones</option>
+                        <option value="neuquen">Neuquén</option>
+                        <option value="rio-negro">Río Negro</option>
+                        <option value="salta">Salta</option>
+                        <option value="san-juan">San Juan</option>
+                        <option value="san-luis">San Luis</option>
+                        <option value="santa-cruz">Santa Cruz</option>
+                        <option value="santa-fe">Santa Fe</option>
+                        <option value="santiago-del-estero">Santiago del Estero</option>
+                        <option value="tierra-del-fuego">Tierra del Fuego</option>
+                        <option value="tucuman">Tucumán</option>
+                      </select>
+                      <p class="form-field__error" id="address-province-error" role="alert" hidden></p>
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-field__label" for="address-zip">Código postal<span class="form-field__required" aria-hidden="true"> *</span></label>
+                      <input class="form-field__input" id="address-zip" name="address-zip" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="12" aria-describedby="address-zip-error" />
+                      <p class="form-field__error" id="address-zip-error" role="alert" hidden></p>
+                    </div>
+
+                    <div class="form-field">
+                      <label class="form-field__label" for="address-country">País</label>
+                      <input class="form-field__input" id="address-country" name="address-country" type="text" value="Argentina" readonly />
+                    </div>
+
+                    <div class="form-field checkout-fields-grid__item--full">
+                      <label class="form-field__label" for="address-notes">Notas de entrega (opcional)</label>
+                      <textarea class="form-field__input" id="address-notes" name="address-notes" rows="2" maxlength="500" placeholder="Referencias para encontrar el domicilio, horarios, etc."></textarea>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </section>
+
+            <!-- ---- Método de pago ---- -->
+            <section class="checkout-section">
+              <fieldset class="checkout-fieldset">
+                <legend class="checkout-section__heading">Método de pago</legend>
+
+                <div class="payment-options">
+                  <label class="payment-option" data-payment-option="transferencia">
+                    <input type="radio" name="payment-method" value="transferencia" checked data-payment-radio />
+                    <span class="payment-option__body">
+                      <span class="payment-option__title">
+                        Transferencia bancaria
+                        <!-- Mismo badge que ya tenía Mercado Pago (span.payment-option__badge,
+                             CSS de nico ya lo esconde/muestra vía .payment-option--disabled) --
+                             agregado en la Etapa 2 porque, a diferencia del supuesto del plan
+                             ("transferencia funciona hoy"), en este entorno TODAVÍA no hay
+                             CBU/alias/titular cargados (ver CLAUDE.md pendientes), así que este
+                             método también puede quedar deshabilitado en runtime. Sin este span,
+                             checkout-page.js igual lo atenúa (opacity vía la clase), pero sin
+                             texto que lo explique. -->
+                        <span class="payment-option__badge">Próximamente</span>
+                      </span>
+                      <span class="payment-option__desc">Te enviamos el CBU/alias y el total por email para que transfieras.</span>
+                    </span>
+                  </label>
+
+                  <label class="payment-option" data-payment-option="mercadopago">
+                    <input type="radio" name="payment-method" value="mercadopago" data-payment-radio data-mp-radio />
+                    <span class="payment-option__body">
+                      <span class="payment-option__title">
+                        Mercado Pago
+                        <span class="payment-option__badge">Próximamente</span>
+                      </span>
+                      <span class="payment-option__desc">Pagá con tarjeta, dinero en cuenta o efectivo desde Mercado Pago.</span>
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
+            </section>
+          </div>
+
+          <!-- ---- Resumen del pedido ---- -->
+          <aside class="checkout-summary" aria-labelledby="summary-heading">
+            <h2 class="checkout-section__heading" id="summary-heading">Tu pedido</h2>
+
+            <ul class="checkout-summary__list" data-summary-list></ul>
+
+            <dl class="checkout-summary__totals">
+              <div class="checkout-summary__row">
+                <dt>Subtotal</dt>
+                <dd data-summary-subtotal>$0</dd>
+              </div>
+              <div class="checkout-summary__row">
+                <dt>Envío</dt>
+                <dd data-summary-shipping>Gratis</dd>
+              </div>
+              <div class="checkout-summary__row checkout-summary__row--total">
+                <dt>Total</dt>
+                <dd data-summary-total>$0</dd>
+              </div>
+            </dl>
+
+            <button class="btn btn--primary btn--full" type="submit" data-confirm-btn>
+              <span class="spinner" data-confirm-spinner hidden aria-hidden="true"></span>
+              <span data-confirm-label>Confirmar pedido</span>
+            </button>
+            <p class="checkout-summary__legal">Al confirmar aceptás los Términos y condiciones y la Política de privacidad.</p>
+          </aside>
+        </form>
+      </div>
+
+      <!-- ============ VISTA 2: PEDIDO CONFIRMADO ============ -->
+      <div data-checkout-view="success" hidden>
+        <div class="order-confirmation">
+          <svg class="order-confirmation__icon" aria-hidden="true"><use href="#icon-check-circle"/></svg>
+          <h2 class="order-confirmation__title" tabindex="-1" data-success-heading>¡Pedido confirmado!</h2>
+          <p class="order-confirmation__code">
+            Número de pedido <strong data-order-code>HILO-000123</strong>
+          </p>
+          <p class="order-confirmation__summary" data-order-total-summary>Total: $17.200</p>
+          <div class="order-confirmation__instructions" data-order-instructions></div>
+
+          <!-- Subida de comprobante (solo transferencia, ver
+               js/checkout-page.js setupComprobanteSection) -- oculto por
+               default, se muestra según order.payment_method. Reusa
+               .form-message/--error/--success de css/styles.css (mismo
+               patrón que el newsletter de la home, ver CLAUDE.md) en vez
+               de inventar un componente de mensaje nuevo. -->
+          <div class="comprobante-upload" data-comprobante-section hidden>
+            <h3 class="comprobante-upload__heading">Subí tu comprobante de transferencia</h3>
+            <p class="comprobante-upload__hint">Formatos aceptados: JPG, PNG o PDF. Tamaño máximo 5&nbsp;MB.</p>
+
+            <div class="comprobante-upload__row" data-comprobante-form-row>
+              <input
+                class="comprobante-upload__input"
+                type="file"
+                id="comprobante-input"
+                accept="image/jpeg,image/png,application/pdf"
+                aria-describedby="comprobante-message"
+                data-comprobante-input
+              />
+              <button class="btn btn--secondary btn--sm" type="button" data-comprobante-submit disabled>
+                <span class="spinner" data-comprobante-spinner hidden aria-hidden="true"></span>
+                <span data-comprobante-submit-label>Subir comprobante</span>
+              </button>
+            </div>
+            <p class="form-message" id="comprobante-message" role="alert" data-comprobante-message></p>
+
+            <p class="comprobante-upload__success" data-comprobante-success hidden>
+              <svg aria-hidden="true"><use href="#icon-check-circle"/></svg>
+              <span>Comprobante recibido. Tu pago quedó <strong>en revisión</strong>.</span>
+            </p>
+          </div>
+
+          <div class="order-confirmation__actions">
+            <a class="btn btn--primary" href="index.html">Volver a la tienda</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" id="footer-contacto">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="logo" href="index.html">
+          <svg class="logo__mark" viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="9" fill="none" stroke="currentColor" stroke-width="4"/>
+            <path d="M6 24h9M33 24h9" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span class="logo__text">HILO Store</span>
+        </a>
+        <p>Medias diseñadas en Argentina, pensadas para durar.</p>
+      </div>
+
+      <div class="footer-col">
+        <h3>Contacto</h3>
+        <address>
+          <span>hola@hilostore.com.ar</span>
+          <span>+54 11 5555-0123</span>
+          <span>Buenos Aires, Argentina</span>
+        </address>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>© <span data-current-year>2026</span> HILO Store. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Carrito real (window.HILO.cart) -- único dueño de localStorage
+       (ver CLAUDE.md). Primero, igual que en index.html. -->
+  <script src="js/cart.js"></script>
+  <!-- Lógica de checkout sin DOM (ver CLAUDE.md / plan de checkout,
+       Etapa 2) -- sobrevive tal cual a la futura migración a React.
+       Orden entre estos cuatro no importa (son independientes entre
+       sí), pero los cuatro tienen que cargar antes que checkout-page.js. -->
+  <script src="js/checkout/totals.js"></script>
+  <script src="js/checkout/validate.js"></script>
+  <script src="js/checkout/idempotency.js"></script>
+  <script src="js/checkout/api.js"></script>
+  <script src="js/checkout-page.js"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# Secretos y datos reales -- el repo es público, nada de esto se sube.
+.env
+.env.*
+!.env.example
+db/*.sqlite3
+db/*.sqlite3-shm
+db/*.sqlite3-wal
+# Imágenes de producto (scrapeadas de un proveedor) y comprobantes de clientes.
+uploads/
+
+# Dependencias y build
+node_modules/
+frontend/dist/
+*.log
+
+# Documentación interna de trabajo y config de Claude Code: quedan en local,
+# no se publican.
+CLAUDE.md
+COMO_CORRER.md
+.claude/

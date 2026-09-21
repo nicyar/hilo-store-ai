@@ -1,0 +1,20 @@
+{
+  "name": "hilo-store-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "HILO Store — frontend React (etapa 1: autenticación). El resto del sitio (home, catálogo) migra en etapas futuras.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11"
+  }
+}

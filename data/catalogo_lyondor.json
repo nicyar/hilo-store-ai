@@ -1,0 +1,89 @@
+{
+  "productos": [
+    {
+      "nombre": "art. 12 - MULTIFILAMENTO",
+      "articulo": "12",
+      "descripcion": "Fina, Talle único",
+      "imagenes": [
+        "uploads/37eaee0eb318441afabcb0e0f4b2a0ecb80e552a55559a49525b70a57afd8a0a.jpg",
+        "uploads/9dfe14c68bf4e764c9c3bbfeaaffbda4bc406f5d2e9dc81674ba644ef8f481cd.jpg",
+        "uploads/8d011ca5c045c3506c5d5f11951db6df58d8201eba5057ce87f0ce2e4a9ece26.jpg"
+      ],
+      "url_origen": "https://www.lyondor.com.ar/daily_12.php",
+      "slug_o_id_origen": "daily_12"
+    },
+    {
+      "nombre": "art. 81 - DRALON",
+      "articulo": "81",
+      "descripcion": "Cálida y suave, Talle único",
+      "imagenes": [
+        "uploads/85c2d1dd356dd87fa3e2b156b49b76c84b1600999cc81702d2def4daf51a2697.jpg",
+        "uploads/a1f2b6cb9875e91be9b9b4beec1ada5c215fada0aea5709875ac41cf4406ce38.jpg",
+        "uploads/c544e4c904fcad8ea3ec7f815352fe38c585ded91dc4e142a330b754e1f278fc.jpg"
+      ],
+      "url_origen": "https://www.lyondor.com.ar/daily_81.php",
+      "slug_o_id_origen": "daily_81"
+    },
+    {
+      "nombre": "art. 316 - BUCANERA",
+      "articulo": "316",
+      "descripcion": "Bicolor angosta, Talle único",
+      "imagenes": [
+        "uploads/31d25e171d40432fa693932616e63bc49a9c2e070e4f7da8be2647f2c1764cf1.jpg",
+        "uploads/b7f87bbb3003cf2606eb80104aa2f815cb3977bd890febd31742d22d340071b5.jpg",
+        "uploads/4d307b1fc9bde7bc684eddbf178880f3fe25b40fd8ce87869fdcd39ac4a2a1cd.jpg"
+      ],
+      "url_origen": "https://www.lyondor.com.ar/daily_316.php",
+      "slug_o_id_origen": "daily_316"
+    },
+    {
+      "nombre": "art. 700 - SUPPORT",
+      "articulo": "700",
+      "descripcion": "Panty descanso, Compresión mediana, Talles 1 al 5",
+      "imagenes": [
+        "uploads/3749825853ce5813af383ac42c27c818e85f5c75182acc0dbb34cdccca810b16.jpg",
+        "uploads/94b85301521ac35c0f35a78183817a45b9476709e5a0327f70396e394847f439.jpg",
+        "uploads/080c06dfebbf90cdcdbf73b406ce0846e9d89961d18f1c0d986fc8d764f6b172.jpg"
+      ],
+      "url_origen": "https://www.lyondor.com.ar/daily_700.php",
+      "slug_o_id_origen": "daily_700"
+    },
+    {
+      "nombre": "art. 720 - SUPPORT 3/4",
+      "articulo": "720",
+      "descripcion": "Panty descanso, Compresión mediana, Talle único",
+      "imagenes": [
+        "uploads/b80c3e5b9d17a68202aea369506462bc26fe934d89312161894d509d7582c4d4.jpg",
+        "uploads/96e77a86eac670b81b911ba637b88c819139fb6531e1479536605487a41e384c.jpg",
+        "uploads/73f73df5d0d66e0f43e9fb2c7b64e1ec75078e08e35a49d5dee79096e9a0412b.jpg"
+      ],
+      "url_origen": "https://www.lyondor.com.ar/daily_720.php",
+      "slug_o_id_origen": "daily_720"
+    },
+    {
+      "nombre": "art. 811 - DRALON",
+      "articulo": "811",
+      "descripcion": "Cálida y suave, Talle único",
+      "imagenes": [
+        "uploads/0301ecd3f92ec5fed0bd6f39310104b80816a60682199db89ab61f24fe5d0f68.jpg",
+        "uploads/b4eae4abf9bab66193dafe75aefae510b26493832794d95e3629d7c702b55ee0.jpg",
+        "uploads/5b5fc63647f39bad5668a9081649ffd69a1065f4b6408c4d109eb7ecfa6b04fe.jpg"
+      ],
+      "url_origen": "https://www.lyondor.com.ar/daily_811.php",
+      "slug_o_id_origen": "daily_811"
+    },
+    {
+      "nombre": "art. 978 - MULTIFILAMENTO",
+      "articulo": "978",
+      "descripcion": "Fina con liga, Talle único",
+      "imagenes": [
+        "uploads/4f709328b320ea287349fe1feebd32b326ea9f50ca4349b250dd690bfa83b6d7.jpg",
+        "uploads/06c01a047e9c00d51819eec921393f6caf6e7eda7d7179c5b0840d04b1b042f5.jpg",
+        "uploads/1a276898c50175a031449dd524a7884798d7556b0d61983fc027910abc8d4377.jpg"
+      ],
+      "url_origen": "https://www.lyondor.com.ar/daily_978.php",
+      "slug_o_id_origen": "daily_978"
+    }
+  ],
+  "fallidos": []
+}

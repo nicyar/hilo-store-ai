@@ -1,0 +1,16 @@
+.google-signin__btn {
+  gap: var(--space-1);
+}
+
+.google-signin__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  background: var(--color-warning-100);
+  color: var(--color-warning-900);
+  border: 1px solid var(--color-warning-700);
+  border-radius: var(--radius-md);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+  margin-top: var(--space-2);
+}

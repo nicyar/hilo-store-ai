@@ -1,0 +1,13 @@
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    padding: var(--space-6) var(--space-4);
+  }
+}

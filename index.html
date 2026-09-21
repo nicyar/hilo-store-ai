@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HILO Store — Medias con actitud</title>
+  <meta name="description" content="Medias diseñadas para durar y para destacar. Envíos a todo el país, cambios sin costo y pago en cuotas." />
+  <meta name="theme-color" content="#C2410C" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+  <!-- Sprite de íconos reutilizables (oculto, solo para <use>) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="icon-sock" viewBox="0 0 100 100">
+      <path fill="currentColor" d="M36 4h20a6 6 0 0 1 6 6v39.5l13.6 7.8A23 23 0 0 1 87 77.5V82a6 6 0 0 1-6 6H30a6 6 0 0 1-6-6V10a6 6 0 0 1 6-6z"/>
+      <rect fill="currentColor" x="29" y="19" width="33" height="7" rx="2" opacity="0.35"/>
+    </symbol>
+  </svg>
+
+  <header class="site-header">
+    <div class="container site-header__bar">
+      <a class="logo" href="#main-content">
+        <svg class="logo__mark" viewBox="0 0 48 48" aria-hidden="true">
+          <circle cx="24" cy="24" r="9" fill="none" stroke="currentColor" stroke-width="4"/>
+          <path d="M6 24h9M33 24h9" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+        <span class="logo__text">HILO <span>Store</span></span>
+      </a>
+
+      <nav class="main-nav" aria-label="Principal">
+        <ul class="main-nav__list">
+          <li><a class="main-nav__link" href="#main-content" aria-current="page">Inicio</a></li>
+          <li><a class="main-nav__link" href="#destacados">Medias</a></li>
+          <li><a class="main-nav__link" href="#confianza">Cómo comprar</a></li>
+          <li><a class="main-nav__link" href="#footer-contacto">Contacto</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <form class="search-form" data-search-form role="search" aria-label="Buscar productos">
+          <label class="sr-only" for="search-input">Buscar productos</label>
+          <input class="search-form__input" id="search-input" type="search" name="q" placeholder="Buscar medias..." />
+        </form>
+        <button class="icon-btn" type="button" data-search-toggle aria-expanded="false" aria-controls="search-input">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <span class="sr-only">Buscar</span>
+        </button>
+
+        <!-- App de login (React, ver CLAUDE.md "Alcance de React"). Same-origin
+             bajo /login (server/src/index.js la monta desde frontend/dist)
+             en vez de http://localhost:5173 -- el checkout necesita login
+             same-origin para que la cookie de sesión viaje sin fricción en
+             el flujo `?next=` (hallazgo de valentina, Etapa 0). URL
+             hardcodeada a propósito: el sitio vanilla no tiene build step
+             para inyectar env vars -- si cambia el dominio del sitio en
+             producción, se actualiza acá. -->
+        <a class="icon-btn" href="/login" aria-label="Mi cuenta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/>
+          </svg>
+          <span class="sr-only">Mi cuenta</span>
+        </a>
+
+        <a class="icon-btn" href="#" aria-label="Ver carrito de compras, 0 productos" data-cart-link>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="9" cy="21" r="1.5"/>
+            <circle cx="19" cy="21" r="1.5"/>
+            <path d="M2.5 3h2l2.4 12.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 8H6"/>
+          </svg>
+          <span class="cart-count is-empty" data-cart-count aria-hidden="true">0</span>
+        </a>
+
+        <button class="icon-btn nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="mobile-nav">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+          <span class="sr-only">Abrir menú de navegación</span>
+        </button>
+      </div>
+    </div>
+
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Principal (mobile)" hidden>
+      <ul class="mobile-nav__list">
+        <li><a class="mobile-nav__link" href="#main-content" aria-current="page">Inicio</a></li>
+        <li><a class="mobile-nav__link" href="#destacados">Medias</a></li>
+        <li><a class="mobile-nav__link" href="#confianza">Cómo comprar</a></li>
+        <li><a class="mobile-nav__link" href="#footer-contacto">Contacto</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Región viva para anunciar cambios de carrito a lectores de pantalla -->
+  <div class="sr-only" role="status" aria-live="polite" data-cart-live></div>
+
+  <main id="main-content">
+    <!-- ============ HERO ============ -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero__inner">
+        <div class="hero__content">
+          <span class="hero__eyebrow">Colección primavera</span>
+          <h1 class="hero__title" id="hero-title">Medias con carácter</h1>
+          <p class="hero__subtitle">
+            Algodón peinado y diseño propio, en cada par.
+          </p>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#destacados">Ver colección</a>
+            <a class="btn btn--secondary" href="#confianza">Cómo comprar</a>
+          </div>
+          <ul class="hero__meta">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="7" width="15" height="11" rx="1.5"/><path d="M16 10h3.5L22 13.5V18h-6"/><circle cx="6" cy="19.5" r="1.7"/><circle cx="17.5" cy="19.5" r="1.7"/></svg>
+              Envío gratis desde $15.000
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 21v-5h5"/></svg>
+              Cambios sin costo
+            </li>
+          </ul>
+        </div>
+        <div class="hero__art">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <use href="#icon-sock"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DESTACADOS ============ -->
+    <section class="section" id="destacados" aria-labelledby="destacados-title">
+      <div class="container">
+        <div class="section-heading">
+          <span class="section-heading__eyebrow">Medias</span>
+          <h2 id="destacados-title">Destacados de la temporada</h2>
+          <p>Los pares más elegidos, con stock disponible para envío inmediato.</p>
+        </div>
+
+        <!-- Grilla generada en el cliente por js/catalog.js a partir de
+             data/catalogo_con_precios.json — no hay product-cards
+             hardcodeadas acá (ver CLAUDE.md, "Catálogo y precios"). El
+             <p class="product-grid__note"> con la leyenda de precio de
+             prueba también lo agrega ese script, solo si corresponde. -->
+        <ul class="product-grid"></ul>
+
+        <div class="section-footer">
+          <a class="btn btn--secondary" href="#destacados">Ver todos los productos</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CONFIANZA ============ -->
+    <section class="section section--subtle" id="confianza" aria-labelledby="confianza-title">
+      <div class="container">
+        <div class="section-heading">
+          <span class="section-heading__eyebrow">Comprar tranquilo</span>
+          <h2 id="confianza-title">Pensado para que compres sin dudar</h2>
+        </div>
+
+        <ul class="trust-grid">
+          <li class="trust-card">
+            <div class="trust-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1" y="7" width="15" height="11" rx="1.5"/><path d="M16 10h3.5L22 13.5V18h-6"/><circle cx="6" cy="19.5" r="1.7"/><circle cx="17.5" cy="19.5" r="1.7"/></svg>
+            </div>
+            <div>
+              <h3>Envíos a todo el país</h3>
+              <p>Recibilo en 2 a 5 días hábiles. Envío gratis en compras desde $15.000.</p>
+            </div>
+          </li>
+          <li class="trust-card">
+            <div class="trust-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 1 3 6.7"/><path d="M3 21v-5h5"/></svg>
+            </div>
+            <div>
+              <h3>Cambios y devoluciones</h3>
+              <p>30 días para cambiar tu par sin costo extra, sin preguntas.</p>
+            </div>
+          </li>
+          <li class="trust-card">
+            <div class="trust-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="4.5" width="21" height="15" rx="2.2"/><line x1="1.5" y1="9.5" x2="22.5" y2="9.5"/><line x1="5" y1="15" x2="9.5" y2="15"/></svg>
+            </div>
+            <div>
+              <h3>Medios de pago</h3>
+              <p>Tarjetas, Mercado Pago y transferencia. Hasta 3 cuotas sin interés.</p>
+            </div>
+          </li>
+          <li class="trust-card">
+            <div class="trust-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 4 6v6c0 5 3.4 8.7 8 9.5 4.6-.8 8-4.5 8-9.5V6z"/><path d="m9 12 2 2 4-4.5"/></svg>
+            </div>
+            <div>
+              <h3>Compra 100% segura</h3>
+              <p>Pago encriptado y datos protegidos en cada paso.</p>
+            </div>
+          </li>
+        </ul>
+
+        <div class="payment-strip" aria-label="Medios de pago aceptados">
+          <span class="payment-strip__label">Aceptamos:</span>
+          <span class="payment-chip">Visa</span>
+          <span class="payment-chip">Mastercard</span>
+          <span class="payment-chip">Mercado Pago</span>
+          <span class="payment-chip">Transferencia</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ NEWSLETTER ============ -->
+    <section class="section" aria-labelledby="newsletter-title">
+      <div class="container">
+        <div class="newsletter">
+          <div class="newsletter__copy">
+            <h2 id="newsletter-title">Sumate a la lista</h2>
+            <p>Novedades y descuentos exclusivos, sin spam.</p>
+          </div>
+          <form class="newsletter__form" data-newsletter-form novalidate>
+            <div class="newsletter__row">
+              <label class="sr-only" for="newsletter-email">Correo electrónico</label>
+              <input
+                id="newsletter-email"
+                type="email"
+                name="email"
+                placeholder="tu@email.com"
+                required
+                aria-describedby="newsletter-message"
+              />
+              <button class="btn btn--primary" type="submit">Suscribirme</button>
+            </div>
+            <p class="form-message" id="newsletter-message" data-form-message role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="footer-contacto">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="logo" href="#main-content">
+          <svg class="logo__mark" viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="9" fill="none" stroke="currentColor" stroke-width="4"/>
+            <path d="M6 24h9M33 24h9" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span class="logo__text">HILO Store</span>
+        </a>
+        <p>Medias diseñadas en Argentina, pensadas para durar. Empezamos por acá — pronto, más categorías.</p>
+        <ul class="social-list">
+          <li>
+            <a href="#" aria-label="Seguinos en Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="#" aria-label="Seguinos en Facebook">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M15 8h2V4h-2a4 4 0 0 0-4 4v2H9v4h2v6h4v-6h2.5l.5-4H15V8Z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="#" aria-label="Seguinos en TikTok">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 4v10.5a3.5 3.5 0 1 1-3-3.46"/><path d="M14 4c.4 2.2 2 3.7 4 4"/></svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <nav class="footer-col" aria-label="Ayuda">
+        <h3>Ayuda</h3>
+        <ul>
+          <li><a href="#">Preguntas frecuentes</a></li>
+          <li><a href="#confianza">Envíos</a></li>
+          <li><a href="#confianza">Cambios y devoluciones</a></li>
+          <li><a href="#footer-contacto">Contacto</a></li>
+        </ul>
+      </nav>
+
+      <nav class="footer-col" aria-label="Tienda">
+        <h3>Tienda</h3>
+        <ul>
+          <li><a href="#destacados">Todos los productos</a></li>
+          <li><a href="#destacados">Novedades</a></li>
+          <li><a href="#">Sobre HILO</a></li>
+        </ul>
+      </nav>
+
+      <div class="footer-col">
+        <h3>Contacto</h3>
+        <address>
+          <span>hola@hilostore.com.ar</span>
+          <span>+54 11 5555-0123</span>
+          <span>Buenos Aires, Argentina</span>
+        </address>
+      </div>
+    </div>
+
+    <div class="container footer-bottom">
+      <p>© <span data-current-year>2026</span> HILO Store. Todos los derechos reservados.</p>
+      <div class="footer-bottom__links">
+        <a href="#">Términos y condiciones</a>
+        <a href="#">Privacidad</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ CARRITO (drawer) ============
+       Oculto por defecto (atributo hidden). El contenido de
+       .cart-drawer__body y .cart-drawer__footer se genera desde
+       js/script.js a partir del estado real del carrito: no hay
+       ítems de ejemplo hardcodeados acá. -->
+  <div class="cart-drawer" data-cart-drawer hidden>
+    <div class="cart-drawer__overlay" data-cart-overlay data-cart-close></div>
+    <div class="cart-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="cart-drawer-title">
+      <div class="cart-drawer__header">
+        <h2 id="cart-drawer-title">Tu carrito</h2>
+        <button class="icon-btn" type="button" data-cart-close aria-label="Cerrar carrito">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="5" y1="5" x2="19" y2="19"/>
+            <line x1="19" y1="5" x2="5" y2="19"/>
+          </svg>
+        </button>
+      </div>
+      <div class="cart-drawer__body" data-cart-body></div>
+      <div class="cart-drawer__footer" data-cart-footer hidden>
+        <div class="cart-drawer__total">
+          <span>Total</span>
+          <span class="cart-drawer__total-value" data-cart-total>$0</span>
+        </div>
+        <!-- Enlace, no botón: es navegación pura a checkout.html, sin
+             acción de JS asociada. Este footer solo se muestra cuando
+             el carrito tiene ítems (ver renderCartDrawer en
+             js/script.js, que hace cartFooter.hidden = cart.length === 0),
+             así que "deshabilitado si el carrito está vacío" ya queda
+             resuelto por esa misma condición: con el carrito vacío el
+             link ni siquiera está visible. -->
+        <a class="btn btn--primary btn--full" href="checkout.html" data-cart-checkout-link>Finalizar compra</a>
+        <button class="btn btn--secondary btn--full" type="button" data-cart-close>Seguir comprando</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/cart.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>

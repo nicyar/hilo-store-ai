@@ -1,0 +1,82 @@
+/*
+  BOTONES — portado desde ../../../css/styles.css (.btn, .btn--*)
+  para que los componentes de auth usen el mismo lenguaje visual
+  que el resto del sitio. Un solo componente de botón con variantes
+  por clase; el estado "loading" cambia texto + aria-busy, nunca
+  solo el color (ver componentes que usan estas clases).
+*/
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1.5rem;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+.btn--primary {
+  background: var(--color-cta-bg);
+  color: var(--color-cta-text);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-cta-bg-hover);
+}
+
+.btn--secondary {
+  background: transparent;
+  border-color: var(--color-neutral-900);
+  color: var(--color-neutral-900);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: var(--color-neutral-900);
+  color: var(--color-neutral-0);
+}
+
+.btn--outline {
+  background: transparent;
+  border-color: var(--color-neutral-300);
+  color: var(--color-neutral-900);
+}
+
+.btn--outline:hover:not(:disabled) {
+  background: var(--color-neutral-900);
+  border-color: var(--color-neutral-900);
+  color: var(--color-neutral-0);
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn__icon {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+}

@@ -1,0 +1,26 @@
+{
+  "name": "hilo-auth-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Servidor de autenticación (Express) de HILO Store. Comparte la base SQLite del catálogo (db/lyondor.sqlite3) pero solo lee/escribe sus propias tablas (users, sessions, password_reset_tokens, phone_verification_codes -- webauthn_credentials y apple_identities quedan en el esquema sin uso, ver CLAUDE.md).",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js",
+    "reset-link": "node scripts/reset-link.js",
+    "test": "node --test src/"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "better-sqlite3": "^11.10.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "google-auth-library": "^10.9.1",
+    "mercadopago": "^3.6.1",
+    "multer": "^2.4.0"
+  }
+}

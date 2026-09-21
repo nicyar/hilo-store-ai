@@ -1,0 +1,778 @@
+/*
+  HILO Store — checkout.html
+  ---------------------------------------------------------
+  Estilos exclusivos de la pantalla de checkout. No se toca
+  css/styles.css (ver CLAUDE.md, guardrail de esta etapa) —
+  todo lo nuevo vive acá. Reusa .btn, .form-message, .container,
+  .site-header y los tokens de css/tokens.css; no duplica esos
+  valores, solo agrega lo que falta para esta pantalla.
+
+  Mobile-first, igual que styles.css: reglas base para 375px,
+  se amplían con min-width.
+*/
+
+/* ============ VOLVER A LA TIENDA (header) ============ */
+.checkout-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.checkout-back-link:hover {
+  color: var(--color-text);
+  background: var(--color-neutral-100);
+}
+
+.checkout-back-link svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ============ ENCABEZADO DE PÁGINA ============ */
+.checkout-page {
+  padding-block: var(--space-4) var(--space-10);
+}
+
+.checkout-page__header {
+  max-width: 640px;
+  margin-bottom: var(--space-4);
+}
+
+.checkout-page__header h1 {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+}
+
+.checkout-page__header p {
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 768px) {
+  .checkout-page__header h1 {
+    font-size: var(--text-3xl);
+  }
+}
+
+/* ============ PANEL DE VISTA PREVIA (solo maqueta) ============
+   <details> nativo: no necesita JS para abrir/cerrar y queda
+   colapsado por default para no competir visualmente con el
+   flujo real. Borde punteado + tipografía mono para que se lea
+   claramente como una herramienta de desarrollo, no como parte
+   del checkout que va a ver un cliente. */
+.checkout-devpanel {
+  margin-bottom: var(--space-4);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  padding: var(--space-2);
+}
+
+.checkout-devpanel summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-text-muted);
+}
+
+.checkout-devpanel__body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.checkout-devpanel__option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+/* ============ LAYOUT PRINCIPAL ============ */
+.checkout-layout {
+  display: grid;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.checkout-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+@media (min-width: 960px) {
+  .checkout-layout {
+    grid-template-columns: 1fr 380px;
+    gap: var(--space-6);
+  }
+}
+
+/* ============ SECCIONES ============ */
+.checkout-section {
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.checkout-section:first-child {
+  padding-top: 0;
+}
+
+.checkout-section:last-child {
+  border-bottom: none;
+}
+
+.checkout-section__heading {
+  display: block;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+  padding: 0;
+  border: none;
+}
+
+.checkout-fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============ AVISO (precio cambiado) ============
+   Mismo criterio que .cart-drawer__notice (warning: fondo suave +
+   texto fuerte + ícono, nunca solo color). Clase propia en vez de
+   reusar esa de styles.css porque esta pantalla no puede tocar ese
+   archivo -- mismos tokens, mismo look. */
+.checkout-notice {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.checkout-notice[hidden] {
+  display: none;
+}
+
+.checkout-notice svg {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.checkout-notice strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.checkout-notice p {
+  margin: 0;
+}
+
+.checkout-notice--warning {
+  background: var(--color-warning-100);
+  color: var(--color-warning-900);
+}
+
+/* ============ CAMPOS DE FORMULARIO ============
+   Componente genérico que faltaba en el sitio vanilla (label + input +
+   error + hint, con foco y aria-describedby). Mismo criterio que
+   frontend/src/components/auth/FormField.jsx -- portado a HTML+CSS
+   estático en vez de JSX, para no divergir del patrón ya validado ahí. */
+.checkout-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2) var(--space-2);
+}
+
+@media (min-width: 640px) {
+  .checkout-fields-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .checkout-fields-grid__item--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  text-align: left;
+}
+
+.form-field__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-text);
+}
+
+.form-field__required {
+  color: var(--color-error-700);
+}
+
+.form-field__input {
+  width: 100%;
+  padding: 0.7rem var(--space-1);
+  font-size: var(--text-base);
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+textarea.form-field__input {
+  resize: vertical;
+  min-height: 3.5em;
+}
+
+/* :where() deja la especificidad del hover en la de la clase sola (0,1,0). Sin
+   eso, `:hover:not(:disabled):not(:read-only)` pesa 0,4,0 y le gana al borde
+   naranja del foco (0,2,0) y al de error (0,1,0-0,3,0) mientras el mouse
+   sigue encima -- justo el caso normal de "click en el input" (hallazgo de la
+   pasada QA del 2026-09-21). El orden de más abajo (foco, después error)
+   pasa a decidir el resultado, que es lo que se busca. */
+.form-field__input:where(:hover:not(:disabled):not(:read-only)) {
+  border-color: var(--color-neutral-900);
+}
+
+.form-field__input:disabled,
+.form-field__input:read-only {
+  background: var(--color-bg-sunken);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Foco propio de los campos de texto: borde de marca + halo que sigue el
+   radio del input. Reemplaza al anillo global de :focus-visible, que
+   forzaba un radio de 4px y dibujaba un cuadrado alrededor (ver
+   css/styles.css, sección FOCO VISIBLE). */
+.form-field__input:focus,
+.form-field__input:focus-visible {
+  outline: none;
+  border-color: var(--color-primary-700);
+  box-shadow: 0 0 0 3px var(--color-focus-glow);
+}
+
+/* Después del foco a propósito: un campo con error sigue viéndose en
+   error aunque esté enfocado. */
+.form-field__input--error,
+.form-field__input--error:focus,
+.form-field__input--error:focus-visible,
+.form-field__input:invalid[data-touched="true"] {
+  border-color: var(--color-error-700);
+}
+
+.form-field__hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.form-field__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-error-700);
+  margin: 0;
+}
+
+.form-field__error[hidden] {
+  display: none;
+}
+
+.form-field__error::before {
+  content: "!";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  color: var(--color-neutral-0);
+  background: var(--color-error-700);
+  border-radius: var(--radius-full);
+}
+
+/* ============ MÉTODO DE ENTREGA ============
+   Radios nativos (accent-color, no se ocultan): foco de teclado y
+   lectura de pantalla quedan resueltos gratis por el navegador, sin
+   necesitar un componente custom de radio. El estado "elegido" se
+   resuelve con :has(), sin JS. */
+.delivery-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.delivery-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.delivery-option:hover {
+  border-color: var(--color-neutral-900);
+}
+
+.delivery-option:has(input:checked) {
+  border-color: var(--color-primary-700);
+  background: var(--color-primary-50);
+}
+
+.delivery-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-primary-700);
+  flex-shrink: 0;
+}
+
+.delivery-option__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.delivery-option__title {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.delivery-option__desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.delivery-option__price {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.address-fields {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-border);
+}
+
+.address-fields[hidden] {
+  display: none;
+}
+
+/* ============ MÉTODO DE PAGO ============
+   Mismo componente visual que .delivery-option (radio nativo + card),
+   con el estado deshabilitado/"próximamente" que pide el plan para
+   Mercado Pago -- resuelto acá en CSS aunque hoy la maqueta lo use
+   habilitado por default (ver panel de vista previa). */
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.payment-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.payment-option:hover {
+  border-color: var(--color-neutral-900);
+}
+
+.payment-option:has(input:checked) {
+  border-color: var(--color-primary-700);
+  background: var(--color-primary-50);
+}
+
+.payment-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: var(--color-primary-700);
+  flex-shrink: 0;
+}
+
+.payment-option__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.payment-option__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.payment-option__desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.payment-option__badge {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-warning-900);
+  background: var(--color-warning-100);
+  border-radius: var(--radius-full);
+  padding: 2px var(--space-1);
+}
+
+/* Estado deshabilitado: nunca solo opacidad -- cursor, badge visible
+   y radio nativo disabled (que ya deja de ser operable por teclado o
+   mouse) cargan la mayor parte de la comunicación. */
+.payment-option--disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.payment-option--disabled:hover {
+  border-color: var(--color-border-strong);
+}
+
+.payment-option--disabled .payment-option__badge {
+  display: inline-block;
+}
+
+/* ============ RESUMEN DEL PEDIDO ============ */
+.checkout-summary {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 960px) {
+  .checkout-summary {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-2));
+  }
+}
+
+.checkout-summary__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.checkout-summary__item {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.checkout-summary__item-media {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-sunken);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.checkout-summary__item-media svg {
+  width: 55%;
+  height: 55%;
+  color: var(--color-neutral-400);
+}
+
+.checkout-summary__item-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.checkout-summary__item-name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+  overflow-wrap: break-word;
+}
+
+.checkout-summary__item-meta {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.checkout-summary__item-subtotal {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.checkout-summary__totals {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.checkout-summary__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.checkout-summary__row dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  color: var(--color-text);
+}
+
+.checkout-summary__row--total {
+  padding-top: var(--space-1);
+  border-top: 1px dashed var(--color-border-strong);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.checkout-summary__row--total dd {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+}
+
+.checkout-summary__legal {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+/* ============ BOTÓN CONFIRMAR: spinner ============
+   Mismo componente .btn de styles.css; acá solo se agrega el ícono
+   de carga que faltaba en el sitio. El texto también cambia
+   ("Confirmando...") -- el feedback nunca depende solo del ícono. */
+.spinner {
+  width: 1.1em;
+  height: 1.1em;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: currentColor;
+  border-radius: var(--radius-full);
+  animation: checkout-spin 0.7s linear infinite;
+}
+
+.spinner[hidden] {
+  display: none;
+}
+
+@keyframes checkout-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn[aria-busy="true"] {
+  cursor: wait;
+}
+
+/* ============ PEDIDO CONFIRMADO ============ */
+.order-confirmation {
+  max-width: 480px;
+  margin-inline: auto;
+  text-align: center;
+  padding-block: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.order-confirmation__icon {
+  width: 56px;
+  height: 56px;
+  color: var(--color-success-700);
+  margin-bottom: var(--space-1);
+}
+
+.order-confirmation__title {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+}
+
+.order-confirmation__title:focus-visible {
+  outline: none;
+}
+
+.order-confirmation__code {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+}
+
+.order-confirmation__code strong {
+  font-family: var(--font-mono);
+  color: var(--color-text);
+  letter-spacing: var(--tracking-wide);
+}
+
+.order-confirmation__summary {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.order-confirmation__instructions {
+  width: 100%;
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  text-align: left;
+}
+
+.order-confirmation__instructions p {
+  margin: 0;
+}
+
+.order-confirmation__instructions p + p {
+  margin-top: var(--space-1);
+}
+
+.order-confirmation__actions {
+  margin-top: var(--space-2);
+}
+
+/* ============ SUBIDA DE COMPROBANTE (transferencia) ============
+   Mismo criterio visual que .order-confirmation__instructions (caja con
+   fondo sutil, texto a la izquierda) para que se lea como parte del
+   mismo bloque de "qué hacer ahora", no como un formulario aparte. */
+.comprobante-upload {
+  width: 100%;
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+}
+
+.comprobante-upload[hidden] {
+  display: none;
+}
+
+.comprobante-upload__heading {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.comprobante-upload__hint {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: var(--space-0-5) 0 0;
+}
+
+.comprobante-upload__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.comprobante-upload__input {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.comprobante-upload__input:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* data-comprobante-message ya es .form-message (styles.css) -- acá solo
+   se ajusta el margen para que no quede pegado al input en esta caja. */
+.comprobante-upload [data-comprobante-message] {
+  margin-top: var(--space-1);
+}
+
+.comprobante-upload__success {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-success-700);
+}
+
+.comprobante-upload__success[hidden] {
+  display: none;
+}
+
+.comprobante-upload__success svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

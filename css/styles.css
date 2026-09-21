@@ -1,0 +1,1397 @@
+/*
+  HILO Store — estilos de la home
+  Mobile-first: las reglas base son para el viewport chico y se
+  escalan con min-width. Layout con Flexbox/Grid + gap (sin
+  márgenes sueltos que se acumulan entre hermanos).
+*/
+
+/* ============ RESET BÁSICO ============ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+img,
+svg {
+  max-width: 100%;
+  display: block;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+/* ============ FOCO VISIBLE (accesibilidad de teclado) ============
+   Anillo fino de un solo trazo (outline oscuro, >=3:1 contra cualquier
+   fondo claro u oscuro del sistema), solo al navegar con teclado.
+   Nunca se quita el foco; solo se reemplaza el estilo por defecto.
+   Sin `border-radius` acá a propósito: forzar un radio pisaba el de cada
+   control y dibujaba un cuadrado alrededor de inputs y botones redondos
+   -- el outline ya sigue la forma real del elemento por sí solo. Sin glow
+   por la misma razón (era un segundo recuadro por fuera del primero).
+   Los campos de texto tienen su propio estado de foco (borde de marca)
+   en cada hoja de formulario, ver `.form-field__input:focus`. */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ============ UTILIDADES ============ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-2);
+  z-index: 100;
+  background: var(--color-neutral-900);
+  color: var(--color-neutral-0);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-inline: var(--space-4);
+  }
+}
+
+.section {
+  padding-block: var(--space-10);
+}
+
+.section--subtle {
+  background: var(--color-bg-subtle);
+}
+
+.section-heading {
+  max-width: 640px;
+  margin-bottom: var(--space-4);
+}
+
+.section-heading__eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary-700);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  margin-bottom: var(--space-2);
+}
+
+.section-heading h2 {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+}
+
+.section-heading p {
+  margin-top: var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+}
+
+@media (min-width: 768px) {
+  .section-heading h2 {
+    font-size: var(--text-3xl);
+  }
+}
+
+/* ============ BOTONES ============
+   Un solo componente de botón con variantes por atributo/clase.
+   El estado "loading" cambia contenido + aria, nunca solo el color. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1.5rem;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  /* 0.85 y no 0.7: con el borde de .btn--outline ya corregido a
+     --color-border-strong (>=3:1), un 0.7 de opacidad sobre fondo blanco
+     licúa ese borde de vuelta a ~2.7:1 — literalmente el mismo problema
+     que se acaba de arreglar, y encima en el estado que hoy se ve por
+     default en cada card (todo el catálogo está "sin precio todavía").
+     0.85 deja el borde en ~3.6:1 y el estado se sigue leyendo como
+     inactivo por el cursor + el cambio de texto ("Precio a confirmar"),
+     no solo por la opacidad. */
+  opacity: 0.85;
+  transform: none;
+}
+
+.btn--primary {
+  background: var(--color-cta-bg);
+  color: var(--color-cta-text);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-cta-bg-hover);
+}
+
+.btn--secondary {
+  background: transparent;
+  border-color: var(--color-neutral-900);
+  color: var(--color-neutral-900);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: var(--color-neutral-900);
+  color: var(--color-neutral-0);
+}
+
+/* Variante minimalista para acciones repetidas muchas veces en pantalla
+   (una por producto): sin relleno de color, para que la fotografía siga
+   siendo el elemento dominante de la grilla. El naranja queda reservado
+   para el/los CTA principal(es) de la página. */
+.btn--outline {
+  background: transparent;
+  /* --color-border-strong (>=3:1 sobre blanco, WCAG 1.4.11) en vez de
+     neutral-300: ese tono daba ~1.48:1 y el límite del botón quedaba
+     casi invisible, sobre todo en mobile. */
+  border-color: var(--color-border-strong);
+  color: var(--color-neutral-900);
+}
+
+.btn--outline:hover:not(:disabled) {
+  background: var(--color-neutral-900);
+  border-color: var(--color-neutral-900);
+  color: var(--color-neutral-0);
+}
+
+/* Sin esto, el botón deshabilitado ("Precio a confirmar" en cada card,
+   hoy el estado por default de TODO el catálogo) pierde el borde recién
+   corregido: el user-agent stylesheet de Chromium define
+   `button:disabled { border-color: rgba(118,118,118,.3) }`, y esa regla
+   (elemento + pseudo-clase) tiene más especificidad que `.btn--outline`
+   sola, así que gana y devuelve un borde ~1.4:1. Repetir el color acá
+   (clase + pseudo-clase) sube la especificidad lo justo para que el
+   sistema de diseño, no el navegador, decida cómo se ve. */
+.btn--outline:disabled,
+.btn--outline[aria-disabled="true"] {
+  border-color: var(--color-border-strong);
+  color: var(--color-neutral-900);
+}
+
+.btn--full {
+  width: 100%;
+}
+
+.btn--sm {
+  padding: 0.5rem 1rem;
+  font-size: var(--text-sm);
+}
+
+.btn__icon {
+  width: 1.1em;
+  height: 1.1em;
+  flex-shrink: 0;
+}
+
+/* Estado "agregado" del botón de producto: mismo componente,
+   cambia texto/ícono/color de fondo -> feedback inmediato sin depender
+   solo del color. Naranja de marca (CTA base) y no verde de éxito, por
+   pedido del usuario: el feedback tiene que verse como parte del sitio. */
+/* Selector doble (.btn.btn--added) y no solo .btn--added: el botón queda
+   `disabled` mientras muestra "Agregado", y `.btn--outline:disabled`
+   (clase + pseudo-clase) tiene más especificidad que `.btn--added` sola,
+   así que le pisaba el texto y el borde (texto oscuro sobre naranja). */
+.btn.btn--added,
+.btn.btn--added:hover,
+.btn.btn--added:disabled {
+  background: var(--color-primary-700);
+  border-color: var(--color-primary-700);
+  /* Color de texto explícito: este modificador se combina con variantes
+     de texto oscuro (.btn--outline) y no puede depender de que la clase
+     base ya haya puesto blanco. */
+  color: var(--color-neutral-0);
+}
+
+/* ============ HEADER ============ */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--header-height);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-text);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.logo__mark {
+  width: 34px;
+  height: 34px;
+  color: var(--color-primary-700);
+}
+
+.logo__text {
+  letter-spacing: -0.01em;
+}
+
+.logo__text span {
+  color: var(--color-primary-700);
+}
+
+.main-nav {
+  display: none;
+}
+
+.main-nav__list {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.main-nav__link {
+  display: inline-block;
+  padding: var(--space-1) 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-neutral-700);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.main-nav__link:hover {
+  color: var(--color-primary-700);
+}
+
+.main-nav__link[aria-current="page"] {
+  color: var(--color-primary-700);
+  border-color: var(--color-primary-700);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-0-5);
+}
+
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-neutral-800);
+  transition: background-color var(--transition-fast);
+}
+
+.icon-btn:hover {
+  background: var(--color-neutral-100);
+}
+
+.icon-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.cart-count {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-700);
+  color: var(--color-neutral-0);
+  font-size: 0.6875rem;
+  font-weight: var(--weight-bold);
+  line-height: 18px;
+  text-align: center;
+}
+
+.cart-count.is-empty {
+  display: none;
+}
+
+/* Buscador expandible */
+.search-form {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  max-width: 0;
+  opacity: 0;
+  transition: max-width var(--transition-base), opacity var(--transition-base);
+}
+
+.search-form.is-open {
+  max-width: 220px;
+  opacity: 1;
+  margin-right: var(--space-1);
+}
+
+.search-form__input {
+  width: 100%;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: 0.5rem var(--space-1);
+  font-size: var(--text-sm);
+}
+
+/* Menú mobile */
+.nav-toggle {
+  display: inline-flex;
+}
+
+@media (min-width: 960px) {
+  .main-nav {
+    display: block;
+  }
+  .nav-toggle {
+    display: none;
+  }
+}
+
+.mobile-nav {
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.mobile-nav[hidden] {
+  display: none;
+}
+
+.mobile-nav__list {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-1) 0;
+}
+
+.mobile-nav__link {
+  display: block;
+  padding: var(--space-2);
+  text-decoration: none;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mobile-nav__link[aria-current="page"] {
+  color: var(--color-primary-700);
+}
+
+@media (min-width: 960px) {
+  .mobile-nav {
+    display: none !important;
+  }
+}
+
+/* ============ HERO ============
+   Editorial: el blanco/gris clarísimo es el protagonista, el naranja
+   queda como acento puntual (eyebrow + CTA principal). El panel de
+   imagen usa el mismo gris "sunken" que las fotos de producto, para
+   que se lea como una única foto grande en vez de un fondo de marca. */
+.hero {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-bottom: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.hero__inner {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: var(--space-8) var(--space-10);
+  align-items: center;
+}
+
+.hero__content {
+  max-width: 560px;
+}
+
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-primary-700);
+  margin-bottom: var(--space-3);
+}
+
+.hero__title {
+  font-size: clamp(var(--text-4xl), 7vw, 4rem);
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-neutral-900);
+}
+
+.hero__subtitle {
+  margin-top: var(--space-3);
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+  max-width: 40ch;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+}
+
+.hero__meta li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.hero__meta svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--color-neutral-400);
+}
+
+.hero__art {
+  display: none;
+}
+
+@media (min-width: 860px) {
+  .hero__inner {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+  }
+  .hero__art {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 4 / 5;
+    background: var(--color-bg-sunken);
+  }
+  .hero__art svg {
+    width: 38%;
+    color: var(--color-primary-700);
+  }
+}
+
+/* ============ PRODUCTOS ============
+   Editorial: sin cards con borde/sombra/fondo de color por producto.
+   La fotografía manda — ocupa casi todo el ancho en mobile — y el
+   nombre/precio quedan chicos y minimalistas debajo, en mono uppercase.
+   Mismo gris "sunken" para todas las imágenes (nada de fondos pastel
+   distintos por producto). 1 columna en mobile, 2 desde 640px y 3
+   desde 1200px (ver medias más abajo) para que la sección no se
+   estire desproporcionadamente en pantallas grandes. */
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8) var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-10) var(--space-5);
+  }
+}
+
+/* A partir de --container-max (1200px) el contenedor deja de crecer:
+   con 2 columnas cada foto se vuelve enorme y la sección "Destacados"
+   termina midiendo miles de px de alto para 6-7 productos. A 3 columnas
+   la card mantiene una proporción editorial razonable sin agregar
+   bordes ni fondo — sigue siendo la misma foto a pantalla completa,
+   solo que en una grilla más angosta. */
+@media (min-width: 1200px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-8) var(--space-4);
+  }
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card__media {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: var(--color-bg-sunken);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-card__media svg {
+  width: 42%;
+  height: 42%;
+  color: var(--color-neutral-400);
+  transition: transform var(--transition-base);
+}
+
+.product-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-base);
+}
+
+.product-card:hover .product-card__media svg,
+.product-card:hover .product-card__media img {
+  transform: scale(1.06);
+}
+
+.product-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  padding-top: var(--space-2);
+  flex: 1;
+}
+
+.product-card__category-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+.product-card__category {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+/* Reemplaza los badges superpuestos sobre la foto: mismo dato
+   (bestseller / nuevo) pero como texto chico, sin caja ni fondo,
+   para no tapar la imagen. El naranja se usa acá con moderación,
+   como el único detalle de color en toda la card. */
+.product-card__tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-primary-700);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+.product-card__name {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text);
+}
+
+/* Descripción real del producto (talle, tejido) tal como viene del
+   catálogo del proveedor — no es un dato inventado, por eso se muestra
+   en texto corrido y no como badge/tag de marketing. */
+.product-card__desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.product-card__price-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  margin-top: var(--space-0-5);
+}
+
+.product-card__price {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.product-card__price--old {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+/* Precio todavía no cargado (el scraping del catálogo no trae precio):
+   mismo lugar y tipografía que un precio real, pero en tono muted y sin
+   el peso semibold, para que se lea como "dato pendiente" y no como un
+   $0 o un precio real a medio cargar. */
+.product-card__price--pending {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
+  font-style: italic;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+/* Marca de "precio de prueba" (precio_es_prueba=1 en la base: lo cargó
+   Lyon para poder probar el flujo de compra end-to-end, todavía no es
+   el precio final del negocio). Un asterisco discreto en vez de un
+   badge — el sistema ya evita chips de marketing sobre el precio —
+   más una única aclaración al pie de la grilla (ver .product-grid__note)
+   en vez de repetir la leyenda en cada una de las 7 cards. */
+.product-card__price-flag {
+  font-size: 0.65em;
+  vertical-align: super;
+  color: var(--color-text-muted);
+  margin-left: 1px;
+}
+
+.product-grid__note {
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* Estado de carga/error/catálogo vacío del render dinámico (js/catalog.js):
+   un único <li> que ocupa toda la grilla en vez de un span vacío o una
+   sección en blanco mientras se resuelve el fetch a
+   data/catalogo_con_precios.json. */
+.product-grid__state {
+  grid-column: 1 / -1;
+  list-style: none;
+  padding: var(--space-8) var(--space-2);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.product-grid__state--error {
+  color: var(--color-error-700);
+}
+
+.product-card__footer {
+  margin-top: var(--space-2);
+}
+
+.product-card__footer .btn {
+  min-height: 44px; /* área táctil accesible */
+}
+
+.section-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-6);
+}
+
+/* ============ CONFIANZA ============ */
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.trust-card {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  padding: 0;
+}
+
+.trust-card__icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg);
+  color: var(--color-primary-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trust-card__icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.trust-card h3 {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--space-0-5);
+}
+
+.trust-card p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.payment-strip {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--color-border-strong);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.payment-strip__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-text-muted);
+}
+
+.payment-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-0-5) var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-neutral-700);
+  background: var(--color-bg-subtle);
+}
+
+/* ============ NEWSLETTER ============ */
+.newsletter {
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+@media (min-width: 768px) {
+  .newsletter {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+}
+
+.newsletter__copy h2 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+}
+
+.newsletter__copy p {
+  color: var(--color-text-muted);
+  margin-top: var(--space-0-5);
+}
+
+.newsletter__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  max-width: 420px;
+}
+
+.newsletter__row {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.newsletter__row input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.7rem var(--space-1);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+}
+
+.newsletter__row input:invalid[data-touched="true"] {
+  border-color: var(--color-error-700);
+}
+
+.form-message {
+  font-size: var(--text-sm);
+  min-height: 1.25em;
+}
+
+.form-message--success {
+  color: var(--color-success-700);
+}
+
+.form-message--error {
+  color: var(--color-error-700);
+}
+
+/* ============ FOOTER ============ */
+.site-footer {
+  background: var(--color-neutral-900);
+  color: var(--color-neutral-300);
+}
+
+.footer-grid {
+  display: grid;
+  gap: var(--space-4);
+  padding-block: var(--space-6);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .footer-grid {
+    grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+  }
+}
+
+.footer-brand .logo {
+  color: var(--color-neutral-0);
+}
+
+.footer-brand p {
+  margin-top: var(--space-2);
+  color: var(--color-neutral-400);
+  max-width: 32ch;
+}
+
+.social-list {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-3);
+}
+
+.social-list a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-neutral-0);
+  transition: background-color var(--transition-fast);
+}
+
+.social-list a:hover {
+  background: var(--color-primary-700);
+}
+
+.social-list svg {
+  width: 18px;
+  height: 18px;
+}
+
+.footer-col h3 {
+  color: var(--color-neutral-0);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  margin-bottom: var(--space-2);
+}
+
+.footer-col ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.footer-col a {
+  text-decoration: none;
+  color: var(--color-neutral-300);
+  font-size: var(--text-sm);
+}
+
+.footer-col a:hover {
+  color: var(--color-neutral-0);
+  text-decoration: underline;
+}
+
+.footer-col address {
+  font-style: normal;
+  font-size: var(--text-sm);
+  color: var(--color-neutral-300);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-block: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-neutral-400);
+}
+
+@media (min-width: 640px) {
+  .footer-bottom {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.footer-bottom__links {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.footer-bottom__links a {
+  text-decoration: none;
+  color: var(--color-neutral-400);
+}
+
+/* ============ CARRITO (DRAWER) ============
+   Panel lateral que se abre desde el ícono del header. Reutiliza los
+   mismos componentes del resto del sitio (.btn, .icon-btn) y solo los
+   tokens de css/tokens.css, para que se sienta parte del mismo sistema
+   y no como un componente aparte. Mobile-first: el panel ocupa casi
+   todo el ancho en mobile y se limita a 420px en pantallas grandes. */
+.cart-drawer[hidden] {
+  display: none;
+}
+
+.cart-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+}
+
+.cart-drawer__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(24, 24, 27, 0.5);
+}
+
+.cart-drawer__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(100%, 420px);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  animation: cart-drawer-in var(--transition-base);
+}
+
+@keyframes cart-drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-drawer__panel {
+    animation: none;
+  }
+}
+
+.cart-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.cart-drawer__header h2 {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-text);
+}
+
+.cart-drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.cart-drawer__notice {
+  display: flex;
+  gap: var(--space-1);
+  align-items: flex-start;
+  background: var(--color-warning-100);
+  color: var(--color-warning-900);
+  border-radius: var(--radius-md);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-3);
+}
+
+.cart-drawer__notice svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cart-drawer__footer {
+  border-top: 1px solid var(--color-border);
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.cart-drawer__footer[hidden] {
+  display: none;
+}
+
+.cart-drawer__total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.cart-drawer__total span:first-child {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-text-muted);
+}
+
+.cart-drawer__total-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+}
+
+/* Lista de ítems */
+.cart-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.cart-item {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.cart-item__media {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-sunken);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.cart-item__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cart-item__media svg {
+  width: 55%;
+  height: 55%;
+  color: var(--color-neutral-400);
+}
+
+.cart-item__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-width: 0;
+}
+
+.cart-item__name {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text);
+}
+
+.cart-item__unit-price {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.cart-item__qty {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  width: fit-content;
+}
+
+.cart-item__qty-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--color-neutral-900);
+  font-size: var(--text-lg);
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+}
+
+.cart-item__qty-btn:hover:not(:disabled) {
+  background: var(--color-neutral-100);
+}
+
+.cart-item__qty-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.cart-item__qty-value {
+  min-width: 1.5em;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.cart-item__end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-1);
+}
+
+.cart-item__subtotal {
+  font-family: var(--font-mono);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.cart-item__remove {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  padding: var(--space-0-5);
+}
+
+.cart-item__remove:hover {
+  color: var(--color-error-700);
+}
+
+.cart-item__remove svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Estado vacío */
+.cart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding-block: var(--space-8);
+}
+
+.cart-empty svg {
+  width: 64px;
+  height: 64px;
+  color: var(--color-neutral-300);
+}
+
+.cart-empty__title {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-lg);
+  color: var(--color-text);
+}
+
+.cart-empty__subtitle {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  max-width: 28ch;
+}
+
+/* Bloquea el scroll del body mientras el drawer está abierto. */
+body.has-open-drawer {
+  overflow: hidden;
+}
+
+.footer-bottom__links a:hover {
+  color: var(--color-neutral-0);
+  text-decoration: underline;
+}
